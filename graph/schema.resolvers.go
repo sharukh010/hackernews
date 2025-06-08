@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/sharukh010/hackernews/graph/model"
+	"github.com/sharukh010/hackernews/internal/auth"
 	"github.com/sharukh010/hackernews/internal/links"
 	"github.com/sharukh010/hackernews/internal/pkg/jwt"
 	"github.com/sharukh010/hackernews/internal/users"
@@ -17,11 +18,20 @@ import (
 
 // CreateLink is the resolver for the createLink field.
 func (r *mutationResolver) CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error) {
+	user := auth.ForContext(ctx)
+	if user == nil {
+		return &model.Link{},fmt.Errorf("access denied")
+	}
 	var link links.Link
 	link.Title = input.Title
 	link.Address = input.Address
+	link.User = user 
 	linkID:= link.Save()
-	return &model.Link{ID:strconv.FormatInt(linkID,10),Title:link.Title,Address: link.Address},nil
+	graphqlUser := &model.User {
+		ID: user.ID,
+		Name: user.Username,
+	}
+	return &model.Link{ID:strconv.FormatInt(linkID,10),Title:link.Title,Address: link.Address,User: graphqlUser},nil
 
 }
 
