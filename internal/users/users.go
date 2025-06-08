@@ -1,6 +1,7 @@
 package users
 
 import (
+	"database/sql"
 	"log"
 
 	database "github.com/sharukh010/hackernews/internal/pkg/db/migrations/mysql"
@@ -36,4 +37,20 @@ func HashPassword(password string) (string,error){
 func CheckPasswordHash(password,hash string) bool{
 	err := bcrypt.CompareHashAndPassword([]byte(hash),[]byte(password))
 	return err == nil 
+}
+func GetUserIdByUsername(username string) (int,error){
+	stmt,err := database.Db.Prepare("SELECT ID FROM Users WHERE Username = ?")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	row := stmt.QueryRow(username)
+	var Id int 
+	err = row.Scan(&Id)
+	if err != nil {
+		if err != sql.ErrNoRows{
+			log.Print(err.Error())
+		}
+		return 0,err 
+	}
+	return Id,nil 
 }
