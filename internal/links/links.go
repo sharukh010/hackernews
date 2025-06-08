@@ -52,7 +52,7 @@ func GetAll() []Link {
 		links = append(links, link)
 	}
 	if err = rows.Err(); err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err.Error())
 	}
 	return links
 }
