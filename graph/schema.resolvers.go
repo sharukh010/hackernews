@@ -82,7 +82,11 @@ func (r *queryResolver) Links(ctx context.Context) ([]*model.Link, error) {
 	var resultLinks []*model.Link 
 	dbLinks := links.GetAll()
 	for _,link := range dbLinks{
-		resultLinks = append(resultLinks, &model.Link{ID:link.ID,Title: link.Title,Address: link.Address})
+		graphqlUser := &model.User{
+			ID:link.User.ID,
+			Name:link.User.Username,
+		}
+		resultLinks = append(resultLinks, &model.Link{ID:link.ID,Title: link.Title,Address: link.Address,User:graphqlUser})
 	}
 	return resultLinks,nil
 }
